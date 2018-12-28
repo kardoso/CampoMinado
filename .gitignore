@@ -1,0 +1,30 @@
+# Created by https://www.gitignore.io/api/monodevelop
+# Edit at https://www.gitignore.io/?templates=monodevelop
+
+### MonoDevelop ###
+#User Specific
+*.userprefs
+*.usertasks
+
+#Mono Project Files
+*.pidb
+*.resources
+test-results/
+
+#Vs files
+.vs/
+
+#Build results
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
