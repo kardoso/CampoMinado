@@ -52,7 +52,7 @@ namespace CampoMinado
                     }
                     if (mouseRight)
                     {
-                        //Retorna 1 se o botão esquerdo do mouse for solto
+                        //Retorna 1 se o botão direito do mouse for solto
                         return 2;
                     }
                 }
@@ -73,6 +73,10 @@ namespace CampoMinado
             if (!IsRevealed)
             {
                 sp.Draw(filled, Position, null, Color.White, 0, new Vector2(0, 0), 1, SpriteEffects.None, 0);
+                if (IsFlagged)
+                {
+                    sp.Draw(flag, Position, null, Color.White, 0, new Vector2(0, 0), 1, SpriteEffects.None, 0);
+                }
             }
             else
             {

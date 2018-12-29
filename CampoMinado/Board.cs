@@ -53,31 +53,35 @@ namespace CampoMinado
             //1. Encontrar o painel
             var selectedPanel = Panels.First(panel => panel.X == x && panel.Y == y);
 
-            //2. Se não há nenhum painel revelado é o primeiro movimento
-            if (Panels.All(panel => !panel.IsRevealed))
+            //2. Apenas revelar se não estiver marcado
+            if (!selectedPanel.IsFlagged)
             {
-                FirstMove(x, y, new Random());
+                //3. Se não há nenhum painel revelado é o primeiro movimento
+                if (Panels.All(panel => !panel.IsRevealed))
+                {
+                    FirstMove(x, y, new Random());
+                }
+
+                //Revelar o painel
+                selectedPanel.IsRevealed = true;
+                selectedPanel.ShowSelection = false;
+
+                //4. terminar jogo se painel for uma mina
+                if (selectedPanel.IsMine)
+                {
+                    GameOver();
+                }
+
+                //5. se o painel é um zero, revelar vizinhos em cascata
+                if (!selectedPanel.IsMine && selectedPanel.AdjacentMines == 0)
+                {
+                    RevealZeros(x, y);
+                }
+
+                //6. se o movimento causar o fim do jogo, terminar o jogo
+                if (!selectedPanel.IsMine)
+                    CompletionCheck();
             }
-
-            //Revelar o painel
-            selectedPanel.IsRevealed = true;
-            selectedPanel.ShowSelection = false;
-
-            //3. terminar jogo se painel for uma mina
-            if (selectedPanel.IsMine)
-            {
-                GameOver();
-            }
-
-            //3. se o painel é um zero, revelar vizinhos em cascata
-            if (!selectedPanel.IsMine && selectedPanel.AdjacentMines == 0)
-            {
-                RevealZeros(x, y);
-            }
-
-            //4. se o movimento causar o fim do jogo, terminar o jogo
-            if (!selectedPanel.IsMine)
-                CompletionCheck();
         }
 
         public void FirstMove(int x, int y, Random rand)
@@ -111,10 +115,12 @@ namespace CampoMinado
             var neighborPanels = Neighbors(x, y).Where(panel => !panel.IsRevealed);
             foreach (var neighbor in neighborPanels)
             {
-                neighbor.IsRevealed = true;
-                if (neighbor.AdjacentMines == 0)
-                {
-                    RevealZeros(neighbor.X, neighbor.Y);
+                if (!neighbor.IsFlagged){
+                    neighbor.IsRevealed = true;
+                    if (neighbor.AdjacentMines == 0)
+                    {
+                        RevealZeros(neighbor.X, neighbor.Y);
+                    }
                 }
             }
         }
@@ -140,7 +146,7 @@ namespace CampoMinado
             var panel = Panels.Where(z => z.X == x && z.Y == y).First();
             if (!panel.IsRevealed)
             {
-                panel.IsFlagged = true;
+                panel.IsFlagged = !panel.IsFlagged;
             }
         }
 
@@ -153,7 +159,10 @@ namespace CampoMinado
             //Revelar painéis restantes
             foreach (var panel in remainingPanels)
             {
-                panel.IsRevealed = true;
+                if (!panel.IsFlagged)
+                {
+                    panel.IsRevealed = true;
+                }
             }
 
             Debug.WriteLine("Perdeu");

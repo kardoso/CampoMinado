@@ -119,16 +119,20 @@ namespace CampoMinado
 
             //Posição do mouse relativo à tela
             Vector2 mPos = camera.ScreenToWorld(input.MousePos);
-            foreach (Panel panel in board.Panels)
+
+            if (board.Status == GameStatus.InProgress)
             {
-                var value = panel.Update(mPos, input.MouseLeftReleased, input.MouseRightReleased);
-                if (value == 1)
+                foreach (Panel panel in board.Panels)
                 {
-                    board.Reveal(panel.X, panel.Y);
-                }
-                else if (value == 2)
-                {
-                    board.Flag(panel.X, panel.Y);
+                    var value = panel.Update(mPos, input.MouseLeftReleased, input.MouseRightReleased);
+                    if (value == 1)
+                    {
+                        board.Reveal(panel.X, panel.Y);
+                    }
+                    else if (value == 2)
+                    {
+                        board.Flag(panel.X, panel.Y);
+                    }
                 }
             }
 
