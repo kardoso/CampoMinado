@@ -1,81 +1,159 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended;
+using MonoGame.Extended.ViewportAdapters;
 
 namespace CampoMinado
 {
-    /// <summary>
-    /// This is the main type for your game.
-    /// </summary>
     public class Game1 : Game
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+        readonly int panelColumns = 18;
+        readonly int panelRows = 10;
+        readonly int gridSize = 16;
+
+        Texture2D background;
+        Texture2D selector;
+        Texture2D filled;
+        Texture2D empty;
+        Texture2D flag;
+        Texture2D mine;
+
+        Input input;
+        Board board;
+        Camera2D camera;
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+
+            //definir tamanho da janela
+            graphics.PreferredBackBufferWidth = (panelColumns * gridSize) * 2;
+            graphics.PreferredBackBufferHeight = (panelRows * gridSize) * 2;
+
+            Window.AllowAltF4 = true;
+            Window.AllowUserResizing = true;
+            IsMouseVisible = true;
+
+            input = new Input(this);
         }
 
-        /// <summary>
-        /// Allows the game to perform any initialization it needs to before starting to run.
-        /// This is where it can query for any required services and load any non-graphic
-        /// related content.  Calling base.Initialize will enumerate through any components
-        /// and initialize them as well.
-        /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
+            //Definir nova textura
+            background = new Texture2D(graphics.GraphicsDevice, 18 * 18, 18 * 9);
+            //Colorir a textura do background
+            Color[] data = new Color[(18 * 18) * (18 * 9)];
+            for (int i = 0; i < data.Length; ++i) data[i] = new Color(200, 212, 93);
+            background.SetData(data);
+
+            //Criar novo jogo
+            board = new Board(new Point(0, 0), panelColumns, panelRows - 1, (panelColumns * (panelRows - 1)) / 4, 16, 16);
+
+            //Criar camera 2D
+            var viewportAdapter = new BoxingViewportAdapter(Window, GraphicsDevice, (panelColumns * gridSize), (panelRows * gridSize));
+            camera = new Camera2D(viewportAdapter)
+            {
+                Position = Vector2.Zero
+            };
 
             base.Initialize();
         }
 
-        /// <summary>
-        /// LoadContent will be called once per game and is the place to load
-        /// all of your content.
-        /// </summary>
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
+            //Carregar imagem dos números 
+            var numbers = Content.Load<Texture2D>("sprites/numbers");
+            List<Texture2D> splitnumbers = new List<Texture2D>();
+
+            //"Cortar" imagem e armazena-las em uma lista
+            for (int x = 0; x < numbers.Width; x += numbers.Width / 10)
+            {
+                for (int y = 0; y < numbers.Height; y += numbers.Height / 1)
+                {
+                    Rectangle sourceRectangle = new Rectangle(x, y, 16, 16);
+                    Texture2D newTexture = new Texture2D(graphics.GraphicsDevice, 16, 16);
+                    Color[] data = new Color[sourceRectangle.Width * sourceRectangle.Height];
+                    numbers.GetData(0, sourceRectangle, data, 0, data.Length);
+                    newTexture.SetData(data);
+                    splitnumbers.Add(newTexture);
+                }
+            }
+
+            //Carregar imagens
+            selector = Content.Load<Texture2D>("sprites/selector");
+            filled = Content.Load<Texture2D>("sprites/filled");
+            empty = Content.Load<Texture2D>("sprites/empty");
+            flag = Content.Load<Texture2D>("sprites/flag");
+            mine = Content.Load<Texture2D>("sprites/mine");
+
+            //Atribuir imagens
+            foreach (Panel panel in board.Panels)
+            {
+
+                panel.numbers = splitnumbers;
+                panel.selected = selector;
+                panel.filled = filled;
+                panel.empty = empty;
+                panel.flag = flag;
+                panel.mine = mine;
+            }
         }
 
-        /// <summary>
-        /// UnloadContent will be called once per game and is the place to unload
-        /// game-specific content.
-        /// </summary>
         protected override void UnloadContent()
         {
             // TODO: Unload any non ContentManager content here
         }
 
-        /// <summary>
-        /// Allows the game to run logic such as updating the world,
-        /// checking for collisions, gathering input, and playing audio.
-        /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
+            //Atualizar input
+            input.Update();
 
-            // TODO: Add your update logic here
+            //Posição do mouse relativo à tela
+            Vector2 mPos = camera.ScreenToWorld(input.MousePos);
+            foreach (Panel panel in board.Panels)
+            {
+                var value = panel.Update(mPos, input.MouseLeftReleased, input.MouseRightReleased);
+                if (value == 1)
+                {
+                    board.Reveal(panel.X, panel.Y);
+                }
+                else if (value == 2)
+                {
+                    board.Flag(panel.X, panel.Y);
+                }
+            }
 
             base.Update(gameTime);
         }
 
-        /// <summary>
-        /// This is called when the game should draw itself.
-        /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
 
-            // TODO: Add your drawing code here
+            //Desenhar na camera
+            var transformMatrix = camera.GetViewMatrix();
+            spriteBatch.Begin(transformMatrix: transformMatrix, blendState: null, samplerState: SamplerState.PointClamp);
+
+            //Desenhar background
+            spriteBatch.Draw(background, Vector2.Zero, Color.White);
+
+            //Desenhar paineis
+            foreach (Panel panel in board.Panels)
+            {
+                panel.Draw(spriteBatch);
+            }
+
+            spriteBatch.End();
+
 
             base.Draw(gameTime);
         }
