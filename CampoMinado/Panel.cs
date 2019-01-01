@@ -12,6 +12,7 @@ namespace CampoMinado
         public int W { get; set; }
         public int H { get; set; }
         public bool IsMine { get; set; }
+        public bool IsMushroom { get; set; }
         public int AdjacentMines { get; set; }
         public bool IsRevealed { get; set; }
         public bool IsFlagged { get; set; }
@@ -68,34 +69,34 @@ namespace CampoMinado
             return 0;
         }
 
-        public void Draw(SpriteBatch sp)
+        public void Draw(SpriteBatch spriteBatch)
         {
             if (!IsRevealed)
             {
-                sp.Draw(filled, Position, null, Color.White, 0, new Vector2(0, 0), 1, SpriteEffects.None, 0);
+                spriteBatch.Draw(filled, Position, null, Color.White, 0, new Vector2(0, 0), 1, SpriteEffects.None, 0);
                 if (IsFlagged)
                 {
-                    sp.Draw(flag, Position, null, Color.White, 0, new Vector2(0, 0), 1, SpriteEffects.None, 0);
+                    spriteBatch.Draw(flag, Position, null, Color.White, 0, new Vector2(0, 0), 1, SpriteEffects.None, 0);
                 }
             }
             else
             {
-                sp.Draw(empty, Position, null, Color.White, 0, new Vector2(0, 0), 1, SpriteEffects.None, 0);
+                spriteBatch.Draw(empty, Position, null, Color.White, 0, new Vector2(0, 0), 1, SpriteEffects.None, 0);
 
                 if (IsMine)
                 {
-                    sp.Draw(mine, Position, null, Color.White, 0, new Vector2(0, 0), 1, SpriteEffects.None, 0);
+                    spriteBatch.Draw(mine, Position, null, Color.White, 0, new Vector2(0, 0), 1, SpriteEffects.None, 0);
                 }
                 else
                 {
                     if (AdjacentMines != 0)
-                        sp.Draw(numbers[AdjacentMines], Position, null, Color.White, 0, new Vector2(0, 0), 1, SpriteEffects.None, 0);
+                        spriteBatch.Draw(numbers[AdjacentMines], Position, null, Color.White, 0, new Vector2(0, 0), 1, SpriteEffects.None, 0);
                 }
             }
 
             if (ShowSelection)
             {
-                sp.Draw(selected, Position, null, Color.White, 0, new Vector2(0, 0), 1, SpriteEffects.None, 0);
+                spriteBatch.Draw(selected, Position, null, Color.White, 0, new Vector2(0, 0), 1, SpriteEffects.None, 0);
             }
 
         }
