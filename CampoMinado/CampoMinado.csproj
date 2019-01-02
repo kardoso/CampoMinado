@@ -48,6 +48,9 @@
     <Compile Include="Board.cs" />
     <Compile Include="Panel.cs" />
     <Compile Include="Input.cs" />
+    <Compile Include="Mushroom.cs" />
+    <Compile Include="Coroutines.cs" />
+    <Compile Include="UI.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">

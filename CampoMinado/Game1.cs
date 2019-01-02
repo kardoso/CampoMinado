@@ -22,9 +22,16 @@ namespace CampoMinado
         Texture2D flag;
         Texture2D mine;
 
+        Texture2D greenMush;
+        Texture2D blueMush;
+        Texture2D redMush;
+
         Input input;
         Board board;
         Camera2D camera;
+        UI ui;
+
+        Coroutines coroutines = new Coroutines();
 
         public Game1()
         {
@@ -40,19 +47,20 @@ namespace CampoMinado
             IsMouseVisible = true;
 
             input = new Input(this);
+            ui = new UI(new Vector2(16*15,16*9));
         }
 
         protected override void Initialize()
         {
             //Definir nova textura
-            background = new Texture2D(graphics.GraphicsDevice, 18 * 18, 18 * 9);
+            background = new Texture2D(graphics.GraphicsDevice, 18 * 18, 18 * 8);
             //Colorir a textura do background
-            Color[] data = new Color[(18 * 18) * (18 * 9)];
+            Color[] data = new Color[(18 * 18) * (18 * 8)];
             for (int i = 0; i < data.Length; ++i) data[i] = new Color(200, 212, 93);
             background.SetData(data);
 
             //Criar novo jogo
-            board = new Board(new Point(0, 0), panelColumns, panelRows - 1, (panelColumns * (panelRows - 1)) / 4, 16, 16);
+            board = new Board(ui, coroutines, new Point(0, 0), panelColumns, panelRows - 1, (panelColumns * (panelRows - 1)) / 4, 12, 16, 16);
 
             //Criar camera 2D
             var viewportAdapter = new BoxingViewportAdapter(Window, GraphicsDevice, (panelColumns * gridSize), (panelRows * gridSize));
@@ -72,8 +80,7 @@ namespace CampoMinado
             //Carregar imagem dos números 
             var numbers = Content.Load<Texture2D>("sprites/numbers");
             List<Texture2D> splitnumbers = new List<Texture2D>();
-
-            //"Cortar" imagem e armazena-las em uma lista
+            //"Cortar" imagem dos numeros e armazena-las em uma lista
             for (int x = 0; x < numbers.Width; x += numbers.Width / 10)
             {
                 for (int y = 0; y < numbers.Height; y += numbers.Height / 1)
@@ -94,6 +101,12 @@ namespace CampoMinado
             flag = Content.Load<Texture2D>("sprites/flag");
             mine = Content.Load<Texture2D>("sprites/mine");
 
+            greenMush = Content.Load<Texture2D>("sprites/green_mushroom");
+            blueMush = Content.Load<Texture2D>("sprites/blue_mushroom");
+            redMush = Content.Load<Texture2D>("sprites/red_mushroom");
+
+            ui.mushBox = Content.Load<Texture2D>("sprites/mushroom_box");
+
             //Atribuir imagens
             foreach (Panel panel in board.Panels)
             {
@@ -105,6 +118,9 @@ namespace CampoMinado
                 panel.flag = flag;
                 panel.mine = mine;
             }
+            board.greenMush = greenMush;
+            board.blueMush = blueMush;
+            board.redMush = redMush;
         }
 
         protected override void UnloadContent()
@@ -114,6 +130,8 @@ namespace CampoMinado
 
         protected override void Update(GameTime gameTime)
         {
+            //Atualizar corotinas
+            coroutines.Update();
             //Atualizar input
             input.Update();
 
@@ -135,7 +153,6 @@ namespace CampoMinado
                     }
                 }
             }
-
             base.Update(gameTime);
         }
 
@@ -155,6 +172,14 @@ namespace CampoMinado
             {
                 panel.Draw(spriteBatch);
             }
+
+            //Desenhar cogumelos
+            foreach (Mushroom mush in board.Mushrooms)
+            {
+                mush.Draw(spriteBatch);
+            }
+
+            ui.Draw(spriteBatch);
 
             spriteBatch.End();
 
