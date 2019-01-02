@@ -98,7 +98,6 @@ namespace CampoMinado
             {
                 spriteBatch.Draw(selected, Position, null, Color.White, 0, new Vector2(0, 0), 1, SpriteEffects.None, 0);
             }
-
         }
     }
 }

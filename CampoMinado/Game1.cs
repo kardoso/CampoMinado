@@ -110,7 +110,6 @@ namespace CampoMinado
             //Atribuir imagens
             foreach (Panel panel in board.Panels)
             {
-
                 panel.numbers = splitnumbers;
                 panel.selected = selector;
                 panel.filled = filled;
@@ -182,7 +181,6 @@ namespace CampoMinado
             ui.Draw(spriteBatch);
 
             spriteBatch.End();
-
 
             base.Draw(gameTime);
         }

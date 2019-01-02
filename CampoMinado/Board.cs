@@ -48,7 +48,6 @@ namespace CampoMinado
                     id++;
                 }
             }
-            //Iniciar Jogo
         }
 
         // Retorna vizinhos do painel com 1 de profundidade(apenas os maix próximos)
@@ -122,7 +121,9 @@ namespace CampoMinado
 
                 //8. se o movimento causar o fim do jogo, terminar o jogo
                 if (!selectedPanel.IsMine)
+                {
                     CompletionCheck();
+                }
             }
         }
 
@@ -260,8 +261,6 @@ namespace CampoMinado
         public IEnumerator SpawnMushroom(int x, int y, Random rand)
         {
             Mushrooms.Add(new Mushroom(this, x, y, 16, 16, rand, greenMush, blueMush, redMush));
-            //TODO: Animar - Movendo para a UI
-            yield return Coroutines.Pause(0);
             var mush = Mushrooms.Last();
             Vector2 posToGo = Vector2.Zero;
             if (Mushrooms.Count == 1)
@@ -302,7 +301,6 @@ namespace CampoMinado
         {
             for (int i = Mushrooms.Count - 2; i >= 0; i--)
             {
-                //TODO: Animar
                 Mushrooms.RemoveAt(i);
             }
 

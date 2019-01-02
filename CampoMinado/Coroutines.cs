@@ -11,11 +11,6 @@ namespace CampoMinado
     {
         List<IEnumerator> routines = new List<IEnumerator>();
 
-        public Coroutines()
-        {
-
-        }
-
         public void Start(IEnumerator routine)
         {
             routines.Add(routine);
@@ -31,18 +26,28 @@ namespace CampoMinado
             for (int i = 0; i < routines.Count; i++)
             {
                 if (routines[i].Current is IEnumerator)
+                {
                     if (MoveNext((IEnumerator)routines[i].Current))
+                    {
                         continue;
+                    }
+                }
                 if (!routines[i].MoveNext())
+                {
                     routines.RemoveAt(i--);
+                }
             }
         }
 
         bool MoveNext(IEnumerator routine)
         {
             if (routine.Current is IEnumerator)
+            {
                 if (MoveNext((IEnumerator)routine.Current))
+                {
                     return true;
+                }
+            }
             return routine.MoveNext();
         }
 
@@ -60,7 +65,9 @@ namespace CampoMinado
         {
             var watch = Stopwatch.StartNew();
             while (watch.Elapsed.TotalSeconds < time)
+            {
                 yield return 0;
+            }
         }
     }
 }
