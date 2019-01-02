@@ -29,6 +29,7 @@ namespace CampoMinado
         Input input;
         Board board;
         Camera2D camera;
+        UI ui;
 
         Coroutines coroutines = new Coroutines();
 
@@ -46,19 +47,20 @@ namespace CampoMinado
             IsMouseVisible = true;
 
             input = new Input(this);
+            ui = new UI(new Vector2(16*15,16*9));
         }
 
         protected override void Initialize()
         {
             //Definir nova textura
-            background = new Texture2D(graphics.GraphicsDevice, 18 * 18, 18 * 9);
+            background = new Texture2D(graphics.GraphicsDevice, 18 * 18, 18 * 8);
             //Colorir a textura do background
-            Color[] data = new Color[(18 * 18) * (18 * 9)];
+            Color[] data = new Color[(18 * 18) * (18 * 8)];
             for (int i = 0; i < data.Length; ++i) data[i] = new Color(200, 212, 93);
             background.SetData(data);
 
             //Criar novo jogo
-            board = new Board(coroutines, new Point(0, 0), panelColumns, panelRows - 1, (panelColumns * (panelRows - 1)) / 4, 12, 16, 16);
+            board = new Board(ui, coroutines, new Point(0, 0), panelColumns, panelRows - 1, (panelColumns * (panelRows - 1)) / 4, 12, 16, 16);
 
             //Criar camera 2D
             var viewportAdapter = new BoxingViewportAdapter(Window, GraphicsDevice, (panelColumns * gridSize), (panelRows * gridSize));
@@ -102,6 +104,8 @@ namespace CampoMinado
             greenMush = Content.Load<Texture2D>("sprites/green_mushroom");
             blueMush = Content.Load<Texture2D>("sprites/blue_mushroom");
             redMush = Content.Load<Texture2D>("sprites/red_mushroom");
+
+            ui.mushBox = Content.Load<Texture2D>("sprites/mushroom_box");
 
             //Atribuir imagens
             foreach (Panel panel in board.Panels)
@@ -174,6 +178,8 @@ namespace CampoMinado
             {
                 mush.Draw(spriteBatch);
             }
+
+            ui.Draw(spriteBatch);
 
             spriteBatch.End();
 

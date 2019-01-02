@@ -6,8 +6,8 @@ namespace CampoMinado
 {
     public class Mushroom
     {
-        public int X { get; set; }
-        public int Y { get; set; }
+        public float X { get; set; }
+        public float Y { get; set; }
         public int W { get; set; }
         public int H { get; set; }
         public Vector2 Position { get { return new Vector2(X, Y); } }

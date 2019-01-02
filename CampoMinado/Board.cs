@@ -25,11 +25,13 @@ namespace CampoMinado
         public Texture2D redMush;
 
         Coroutines coroutines;
+        UI ui;
 
         Random rand = new Random();
 
-        public Board(Coroutines coroutines, Point startCell, int cols, int rows, int mines, int mushrooms, int width, int height)
+        public Board(UI ui, Coroutines coroutines, Point startCell, int cols, int rows, int mines, int mushrooms, int width, int height)
         {
+            this.ui = ui;
             this.coroutines = coroutines;
             Columns = cols;
             Rows = rows;
@@ -261,7 +263,34 @@ namespace CampoMinado
             //TODO: Animar - Movendo para a UI
             yield return Coroutines.Pause(0);
             var mush = Mushrooms.Last();
-            if (Mushrooms.Count >= 3)
+            Vector2 posToGo = Vector2.Zero;
+            if (Mushrooms.Count == 1)
+            {
+                posToGo = new Vector2((int)ui.boxPos.X, (int)ui.boxPos.Y);
+            }
+            if (Mushrooms.Count == 2)
+            {
+                posToGo = new Vector2((int)ui.boxPos2.X, (int)ui.boxPos2.Y);
+            }
+            if (Mushrooms.Count == 3)
+            {
+                posToGo = new Vector2((int)ui.boxPos3.X, (int)ui.boxPos3.Y);
+            }
+            var timeToMove = 5;
+            var currentPos = mush.Position;
+            var t = 0f;
+            while (t < 1)
+            {
+                //Tempo em movimento
+                t += 0.2f / timeToMove;
+                //Musica
+                //mover o boss
+                mush.X = MathHelper.Lerp(currentPos.X, posToGo.X, t);
+                mush.Y = MathHelper.Lerp(currentPos.Y, posToGo.Y, t);
+                //balancar a cameravfx.ShakeCamera(0.2f);
+                yield return null;
+            }
+            if (Mushrooms.Count == 3)
             {
                 Mushrooms.Last().FateSelector();
                 ResetMushrooms(Mushrooms.Last());
